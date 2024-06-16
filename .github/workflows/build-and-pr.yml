@@ -1,0 +1,33 @@
+name: Build and Create PR
+
+on:
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'adopt'
+        java-version: '17'
+
+    - name: Build with Gradle
+      run: ./gradlew build
+
+    - name: Create Pull Request to main
+      uses: peter-evans/create-pull-request@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: 'Build artifacts from develop'
+        branch: 'build-artifacts'
+        base: 'main'
+        title: 'Build artifacts from develop'
+        body: 'This PR contains build artifacts from the develop branch.'
