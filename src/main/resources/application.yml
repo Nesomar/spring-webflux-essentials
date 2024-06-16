@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: webflux-essentials
+  server:
+    port: 8080
+  output:
+    ansi:
+      enabled: ALWAYS
+  profiles:
+    active: dev
+  r2dbc:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  cache:
+    type: redis
+  redis:
+    host: ${SPRING_REDIS_HOST}
+    port: ${SPRING_REDIS_PORT}
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health, info, metrics, caches
+  endpoint:
+    prometheus:
+      enabled: true
+    metrics:
+      enabled: true
+    httptrace:
+      enabled: true
+management.metrics.export.prometheus:
+  enabled: true
+  step: 1m
+management.metrics.distribution:
+  percentiles-histogram:
+    all: true
+  percentiles:
+    all: 0.5, 0.75, 0.95, 0.99
