@@ -1,9 +1,9 @@
-name: Build and Create PR
+name: Build and PR
 
 on:
-  pull_request:
+  push:
     branches:
-      - develop
+      - 'feature/*'
 
 jobs:
   build:
@@ -22,12 +22,18 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build
 
-    - name: Create Pull Request to main
+  create-pr:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Create Pull Request
       uses: peter-evans/create-pull-request@v3
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: 'Build artifacts from develop'
-        branch: 'build-artifacts'
-        base: 'main'
-        title: 'Build artifacts from develop'
-        body: 'This PR contains build artifacts from the develop branch.'
+        commit-message: 'Create Pull Request for feature branch'
+        branch: 'develop'
+        title: 'Feature branch PR'
+        body: 'This PR is automatically created from a feature branch.'
