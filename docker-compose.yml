@@ -19,23 +19,7 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
-
-  springboot-app:
-    build: .
-    container_name: springboot-app
-    environment:
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      SPRING_REDIS_HOST: ${SPRING_REDIS_HOST}
-      SPRING_REDIS_PORT: ${SPRING_REDIS_PORT}
-
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
-      - redis
-
+      
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
