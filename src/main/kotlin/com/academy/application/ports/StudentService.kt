@@ -35,9 +35,10 @@ interface StudentService {
     fun updateStudent(id: Long, student: Student): Mono<Student>
 
     /**
-     * Deletes a student by their ID.
-     * @param id the ID of the student to delete.
-     * @return a Mono indicating completion or error.
+     * Deletes the specified student.
+     *
+     * @param student The student to be deleted.
+     * @return A Mono signaling when the deletion has been completed.
      */
-    fun deleteStudent(id: Long): Mono<Void>
+    fun deleteStudent(student: Student): Mono<Void>
 }

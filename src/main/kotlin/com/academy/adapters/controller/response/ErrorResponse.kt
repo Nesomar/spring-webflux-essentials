@@ -6,5 +6,5 @@ import com.fasterxml.jackson.annotation.JsonInclude
 data class ErrorResponse(
     val errorCode: String,
     val errorMessage: String,
-    val errorDetails: String? = null
+    val errorDetails: Map<String, String> = mutableMapOf()
 )

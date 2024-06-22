@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Pattern
 data class StudentRequest(
     @field:NotBlank(message = "firstName is mandatory.")
     val firstName: String,
-    @field:NotBlank(message = "firstName is mandatory.")
+    @field:NotBlank(message = "lastName is mandatory.")
     val lastName: String,
     @field:NotNull(message = "age is mandatory.")
     @field:Min(value = 16, message = "Minimum age for enrollment is 16 years.")
