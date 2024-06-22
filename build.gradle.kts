@@ -28,12 +28,12 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-logging")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
-	implementation("io.r2dbc:r2dbc-postgresql:${property("r2dbcPostgresqlVersion")}")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	implementation("io.r2dbc:r2dbc-postgresql:${property("r2dbcPostgresqlVersion")}")
 	implementation("io.lettuce:lettuce-core:${property("lettuceCoreVersion")}")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${property("coroutinesCoreVersion")}")
 
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
-	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${property("jacksonVersion")}")
 	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${property("jacksonVersion")}")
 
 	runtimeOnly("io.micrometer:micrometer-registry-prometheus")
@@ -41,6 +41,8 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("io.projectreactor:reactor-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
+	testImplementation("io.mockk:mockk:${property("mockkVersion")}")
 
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
