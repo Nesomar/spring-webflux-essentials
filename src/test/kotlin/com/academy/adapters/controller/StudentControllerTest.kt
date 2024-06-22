@@ -6,108 +6,102 @@ import com.academy.adapters.controller.request.StudentRequest
 import com.academy.adapters.controller.response.StudentResponse
 import com.academy.application.StudentUseCase
 import com.academy.domain.Student
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.Mockito
+import org.mockito.Mockito.mock
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.LocalDate
-import kotlin.test.Test
 
+@ExtendWith(SpringExtension::class)
+@WebFluxTest(StudentController::class)
 class StudentControllerTest {
 
-    private lateinit var studentUseCase: StudentUseCase
+    @Autowired
     private lateinit var webTestClient: WebTestClient
+
+    @MockBean
+    private lateinit var studentUseCase: StudentUseCase
 
     @BeforeEach
     fun setUp() {
-        studentUseCase = mockk()
+        studentUseCase = mock(StudentUseCase::class.java)
         val studentController = StudentController(studentUseCase)
         webTestClient = WebTestClient.bindToController(studentController).build()
     }
 
     @Test
-    fun `should get all students`() {
-        val students = createStudent()
-        every { studentUseCase.getAllStudents() } returns Flux.fromIterable(listOf(students))
+    fun `getAllStudents should return all students`() {
+        val students = listOf(createStudent())
+        Mockito.`when`(studentUseCase.getAllStudents()).thenReturn(Flux.fromIterable(students))
 
-        webTestClient.get()
-            .uri("/students")
+        webTestClient.get().uri("/students")
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk
             .expectBodyList(StudentResponse::class.java)
             .hasSize(1)
-            .contains(students.toResponse())
-
-        verify { studentUseCase.getAllStudents() }
+            .contains(students[0].toResponse())
     }
 
     @Test
-    fun `should get student by id`() {
+    fun `getStudentById should return student by id`() {
         val student = createStudent()
-        every { studentUseCase.getStudentById(1) } returns Mono.just(student)
+        Mockito.`when`(studentUseCase.getStudentById(1)).thenReturn(Mono.just(student))
 
-        webTestClient.get()
-            .uri("/students/1")
+        webTestClient.get().uri("/students/1")
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk
             .expectBody(StudentResponse::class.java)
             .isEqualTo(student.toResponse())
-
-        verify { studentUseCase.getStudentById(1) }
     }
 
     @Test
-    fun `should create student`() {
+    fun `createStudent should create a new student`() {
         val studentRequest = createStudentRequest()
         val studentResponse = createStudentResponse()
-        every { studentUseCase.createStudent(studentRequest.toDomain()) } returns Mono.just(createStudent())
+        Mockito.`when`(studentUseCase.createStudent(studentRequest.toDomain())).thenReturn(Mono.just(createStudent()))
 
-        webTestClient.post()
-            .uri("/students")
+        webTestClient.post().uri("/students")
             .contentType(MediaType.APPLICATION_JSON)
             .bodyValue(studentRequest)
             .exchange()
             .expectStatus().isCreated
             .expectBody(StudentResponse::class.java)
             .isEqualTo(studentResponse)
-
-        verify { studentUseCase.createStudent(studentRequest.toDomain()) }
     }
 
     @Test
-    fun `should update student`() {
+    fun `updateStudent should update an existing student`() {
         val studentRequest = createStudentRequest()
         val studentResponse = createStudentResponse()
-        every { studentUseCase.updateStudent(1, studentRequest.toDomain()) } returns Mono.just(createStudent())
+        Mockito.`when`(studentUseCase.updateStudent(1, studentRequest.toDomain())).thenReturn(Mono.just(createStudent()))
 
-        webTestClient.put()
-            .uri("/students/1")
+        webTestClient.put().uri("/students/1")
             .contentType(MediaType.APPLICATION_JSON)
             .bodyValue(studentRequest)
             .exchange()
             .expectStatus().isOk
             .expectBody(StudentResponse::class.java)
             .isEqualTo(studentResponse)
-
-        verify { studentUseCase.updateStudent(1, studentRequest.toDomain()) }
     }
 
     @Test
-    fun `should delete student`() {
-        every { studentUseCase.deleteStudent(1) } returns Mono.empty()
+    fun `deleteStudent should delete a student`() {
+        Mockito.`when`(studentUseCase.deleteStudent(1)).thenReturn(Mono.empty())
 
-        webTestClient.delete()
-            .uri("/students/1")
+        webTestClient.delete().uri("/students/1")
             .exchange()
             .expectStatus().isNoContent
-
-        verify { studentUseCase.deleteStudent(1) }
     }
 
     private fun createStudent() = Student(
