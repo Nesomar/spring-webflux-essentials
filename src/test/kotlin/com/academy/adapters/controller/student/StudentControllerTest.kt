@@ -1,9 +1,9 @@
-package com.academy.adapters.controller
+package com.academy.adapters.controller.student
 
-import com.academy.adapters.controller.mapper.StudentRequestMapper.toDomain
-import com.academy.adapters.controller.mapper.StudentResponseMapper.toResponse
-import com.academy.adapters.controller.request.StudentRequest
-import com.academy.adapters.controller.response.StudentResponse
+import com.academy.adapters.controller.student.mapper.StudentRequestMapper.toDomain
+import com.academy.adapters.controller.student.mapper.StudentResponseMapper.toResponse
+import com.academy.adapters.controller.student.request.StudentRequest
+import com.academy.adapters.controller.student.response.StudentResponse
 import com.academy.application.StudentUseCase
 import com.academy.domain.Student
 import org.junit.jupiter.api.BeforeEach

@@ -23,6 +23,10 @@ spring:
         max-idle: 8
         min-idle: 0
 
+webclient:
+  json-placeholder:
+    url: ${JSON_PLACE_HOLDER_URL}
+
 management:
   endpoints:
     web:

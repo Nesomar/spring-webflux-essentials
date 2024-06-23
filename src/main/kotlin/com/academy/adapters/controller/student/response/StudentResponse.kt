@@ -1,4 +1,4 @@
-package com.academy.adapters.controller.response
+package com.academy.adapters.controller.student.response
 
 import java.time.LocalDate
 

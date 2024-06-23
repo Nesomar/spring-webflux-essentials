@@ -1,7 +1,8 @@
+package com.academy.config
+
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import java.time.Duration
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
@@ -15,10 +16,11 @@ import org.springframework.data.redis.core.ReactiveRedisTemplate
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer
 import org.springframework.data.redis.serializer.RedisSerializationContext
 import org.springframework.data.redis.serializer.StringRedisSerializer
+import java.time.Duration
 
-@Configuration
 @EnableCaching
-class ReactiveRedisConfig {
+@Configuration
+class RedisCacheConfig {
 
     @Bean
     fun reactiveRedisConnectionFactory(): ReactiveRedisConnectionFactory {
@@ -41,12 +43,15 @@ class ReactiveRedisConfig {
             .entryTtl(Duration.ofHours(1)) // Tempo de vida do cache
             .disableCachingNullValues()
             .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(StringRedisSerializer()))
-            .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(GenericJackson2JsonRedisSerializer()))
+            .serializeValuesWith(
+                RedisSerializationContext.SerializationPair.fromSerializer(
+                    GenericJackson2JsonRedisSerializer()
+                )
+            )
         return RedisCacheManager.builder(redisConnectionFactory)
             .cacheDefaults(redisCacheConfiguration)
             .build()
     }
-
 
     @Bean
     fun objectMapper(): ObjectMapper {

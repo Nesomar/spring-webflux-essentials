@@ -2,7 +2,6 @@ package com.academy.application
 
 import com.academy.application.ports.StudentService
 import com.academy.domain.Student
-import com.academy.domain.exception.StudentException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*

@@ -1,6 +1,6 @@
-package com.academy.adapters.controller.mapper
+package com.academy.adapters.controller.student.mapper
 
-import com.academy.adapters.controller.response.StudentResponse
+import com.academy.adapters.controller.student.response.StudentResponse
 import com.academy.domain.Student
 
 object StudentResponseMapper {
