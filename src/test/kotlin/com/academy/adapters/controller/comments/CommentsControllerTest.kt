@@ -1,5 +1,6 @@
 package com.academy.adapters.controller.comments
 
+import com.academy.adapters.controller.comments.mapper.CommentResponseMapper.toResponse
 import com.academy.adapters.controller.comments.response.CommentResponse
 import com.academy.application.CommentsUseCase
 import com.academy.domain.Comment
@@ -14,6 +15,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.web.reactive.server.WebTestClient
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import kotlin.random.Random
 
 @WebFluxTest(CommentsController::class)
 @ExtendWith(MockitoExtension::class)
@@ -25,24 +27,6 @@ class CommentsControllerTest {
     @MockBean
     private lateinit var commentsUseCase: CommentsUseCase
 
-    private val comment = Comment(
-        id = 1,
-        postId = 1,
-        name = "Comment Test",
-        email = "colaborador.teste@email.com",
-        body = "doloribus at sed quis culpa deserunt consectetur qui praesentium\\naccusamus fugiat dicta\\nvoluptatem rerum ut " +
-                "voluptate autem\\nvoluptatem repellendus aspernatur dolorem in"
-    )
-
-    private val commentResponse = CommentResponse(
-        id = 1,
-        postId = 1,
-        name = "Comment Test",
-        email = "colaborador.teste@email.com",
-        body = "doloribus at sed quis culpa deserunt consectetur qui praesentium\\naccusamus fugiat dicta\\nvoluptatem rerum ut " +
-                "voluptate autem\\nvoluptatem repellendus aspernatur dolorem in"
-    )
-
     @BeforeEach
     fun setUp() {
         Mockito.reset(commentsUseCase)
@@ -53,6 +37,8 @@ class CommentsControllerTest {
         val page = 0
         val size = 10
 
+        val comment = createComments()
+
         Mockito.`when`(commentsUseCase.getAllComments(page, size))
             .thenReturn(Flux.just(comment))
 
@@ -62,12 +48,14 @@ class CommentsControllerTest {
             .expectStatus().isOk
             .expectBodyList(CommentResponse::class.java)
             .hasSize(1)
-            .contains(commentResponse)
+            .contains(comment.toResponse())
     }
 
     @Test
     fun `getCommentsByPostId should return a list of comments for a given postId`() {
         val postId = 1
+
+        val comment = createComments()
 
         Mockito.`when`(commentsUseCase.getCommentsByPostId(postId))
             .thenReturn(Flux.just(comment))
@@ -78,7 +66,7 @@ class CommentsControllerTest {
             .expectStatus().isOk
             .expectBodyList(CommentResponse::class.java)
             .hasSize(1)
-            .contains(commentResponse)
+            .contains(comment.toResponse())
     }
 
     @Test
@@ -91,4 +79,22 @@ class CommentsControllerTest {
             .exchange()
             .expectStatus().isOk
     }
+
+    private fun createCommentsResponse() : CommentResponse =
+        CommentResponse(
+            postId = Random.nextInt(1, 50),
+            id = Random.nextInt(1, 50),
+            name = "John Doe",
+            email = "john.doe@example.com",
+            body = "This is a test comment."
+        )
+
+    private fun createComments(): Comment =
+        Comment(
+            postId = Random.nextInt(1, 50),
+            id = Random.nextInt(1, 50),
+            name = "John Doe",
+            email = "john.doe@example.com",
+            body = "This is a test comment."
+        )
 }

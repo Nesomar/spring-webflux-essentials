@@ -16,22 +16,40 @@ class CommentsUseCase(
 ) {
 
     fun getAllComments(page: Int, size: Int): Flux<Comment> {
-        return commentService.findAllPaged(page, size)
-            .switchIfEmpty(commentWebClientService.getAllComments(page, size).flatMap {
-                commentService.save(it.copy(id = null))
-            })
+        return fetchCommentsFromService(page, size)
+            .switchIfEmpty(fetchAndSaveCommentsFromWebClient(page, size))
     }
 
     @Cacheable(value = ["comment"], key = "#postId")
     fun getCommentsByPostId(postId: Int): Flux<Comment> {
-        return commentService.findByPostId(postId)
-            .switchIfEmpty(commentWebClientService.getCommentsByPostId(postId).flatMap {
-                commentService.save(it.copy(id = null))
-            })
+        return fetchCommentsByPostIdFromService(postId)
+            .switchIfEmpty(fetchAndSaveCommentsByPostIdFromWebClient(postId))
     }
 
-    @CacheEvict(value = ["comment"], key = "#postId", allEntries = true)
+    @CacheEvict(value = ["comment"], allEntries = true)
     fun deleteAllComments(): Mono<Void> {
         return commentService.deleteAllComments()
+    }
+
+    private fun fetchCommentsFromService(page: Int, size: Int): Flux<Comment> {
+        return commentService.findAllPaged(page, size)
+    }
+
+    private fun fetchAndSaveCommentsFromWebClient(page: Int, size: Int): Flux<Comment> {
+        return commentWebClientService.getAllComments(page, size)
+            .flatMap { comment ->
+                commentService.save(comment.copy(id = null))
+            }
+    }
+
+    private fun fetchCommentsByPostIdFromService(postId: Int): Flux<Comment> {
+        return commentService.findByPostId(postId)
+    }
+
+    private fun fetchAndSaveCommentsByPostIdFromWebClient(postId: Int): Flux<Comment> {
+        return commentWebClientService.getCommentsByPostId(postId)
+            .flatMap { comment ->
+                commentService.save(comment.copy(id = null))
+            }
     }
 }

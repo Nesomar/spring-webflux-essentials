@@ -4,7 +4,10 @@ import com.academy.application.ports.StudentService
 import com.academy.domain.Student
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.*
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
@@ -30,9 +33,9 @@ class StudentUseCaseTest {
         StepVerifier.create(studentUseCase.getAllStudents())
             .expectNext(student1)
             .expectNext(student2)
-            .verifyComplete();
+            .verifyComplete()
 
-        verify(studentService, times(1)).getAllStudents();
+        verify(studentService, times(1)).getAllStudents()
     }
 
     @Test
@@ -42,9 +45,9 @@ class StudentUseCaseTest {
 
         StepVerifier.create(studentUseCase.getStudentById(1L))
             .expectNext(student)
-            .verifyComplete();
+            .verifyComplete()
 
-        verify(studentService, times(1)).getStudentById(1L);
+        verify(studentService, times(1)).getStudentById(1L)
     }
 
     @Test
@@ -54,9 +57,9 @@ class StudentUseCaseTest {
 
         StepVerifier.create(studentUseCase.createStudent(student))
             .expectNext(student)
-            .verifyComplete();
+            .verifyComplete()
 
-        verify(studentService, times(1)).createStudent(student);
+        verify(studentService, times(1)).createStudent(student)
     }
 
     @Test
@@ -66,9 +69,9 @@ class StudentUseCaseTest {
 
         StepVerifier.create(studentUseCase.updateStudent(1L, student))
             .expectNext(student)
-            .verifyComplete();
+            .verifyComplete()
 
-        verify(studentService, times(1)).updateStudent(1L, student);
+        verify(studentService, times(1)).updateStudent(1L, student)
     }
 
     @Test
@@ -78,9 +81,9 @@ class StudentUseCaseTest {
         `when`(studentService.deleteStudent(student)).thenReturn(Mono.empty())
 
         StepVerifier.create(studentUseCase.deleteStudent(1L))
-            .verifyComplete();
+            .verifyComplete()
 
-        verify(studentService, times(1)).getStudentById(1L);
-        verify(studentService, times(1)).deleteStudent(student);
+        verify(studentService, times(1)).getStudentById(1L)
+        verify(studentService, times(1)).deleteStudent(student)
     }
 }
