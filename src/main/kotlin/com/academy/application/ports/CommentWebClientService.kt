@@ -6,19 +6,21 @@ import reactor.core.publisher.Flux
 interface CommentWebClientService {
 
     /**
-     * Retrieves all comments with pagination.
+     * Retrieves comments for a specific post by its ID.
      *
-     * @param page the page number to retrieve.
-     * @param size the number of comments per page.
-     * @return a Flux stream of Comment objects.
+     * @param postId The ID of the post for which to retrieve comments.
+     * @param page The page number to retrieve.
+     * @param size The number of comments per page.
+     * @return A Flux stream of comments for the specified post.
      */
-    fun getAllComments(page: Int, size: Int): Flux<Comment>
+    fun getCommentsByPostId(postId: Int, page: Int, size: Int): Flux<Comment>
 
     /**
-     * Retrieves comments by a specific post ID.
+     * Retrieves all comments with pagination.
      *
-     * @param postId the ID of the post for which to retrieve comments.
-     * @return a Flux stream of Comment objects associated with the specified post ID.
+     * @param page The page number to retrieve.
+     * @param size The number of comments per page.
+     * @return A Flux stream of all comments.
      */
-    fun getCommentsByPostId(postId: Int): Flux<Comment>
+    fun getAllComments(page: Int, size: Int): Flux<Comment>
 }

@@ -20,9 +20,9 @@ class CommentsWebClient(
             .map { it.toDomain() }
     }
 
-    fun getCommentsByPostId(postId: Int): Flux<Comment> {
+    fun getCommentsByPostId(postId: Int, page: Int, size: Int): Flux<Comment> {
         return webClient.get()
-            .uri("/comments?postId={postId}", postId)
+            .uri("/comments?postId={postId}&_page=$page&_limit=$size", postId)
             .retrieve()
             .bodyToFlux(CommentRequest::class.java)
             .map { it.toDomain() }
