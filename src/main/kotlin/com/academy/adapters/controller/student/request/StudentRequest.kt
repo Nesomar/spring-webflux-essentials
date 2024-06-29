@@ -1,4 +1,4 @@
-package com.academy.adapters.controller.request
+package com.academy.adapters.controller.student.request
 
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.Min

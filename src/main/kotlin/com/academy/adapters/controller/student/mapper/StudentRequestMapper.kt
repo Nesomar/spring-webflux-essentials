@@ -1,6 +1,6 @@
-package com.academy.adapters.controller.mapper
+package com.academy.adapters.controller.student.mapper
 
-import com.academy.adapters.controller.request.StudentRequest
+import com.academy.adapters.controller.student.request.StudentRequest
 import com.academy.domain.Student
 import java.time.LocalDate
 

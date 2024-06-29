@@ -2,10 +2,11 @@ package com.academy.application
 
 import com.academy.application.ports.StudentService
 import com.academy.domain.Student
-import com.academy.domain.exception.StudentException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -24,15 +25,17 @@ class StudentUseCaseTest {
 
     @Test
     fun `getAllStudents should return all students`() {
-        val students = listOf(Student(1, "John Doe"), Student(2, "Jane Doe"))
+        val student1 = Student(1, "John Doe")
+        val student2 = Student(2, "Jane Doe")
+        val students = listOf(student1, student2)
         `when`(studentService.getAllStudents()).thenReturn(Flux.fromIterable(students))
 
-        val result = studentUseCase.getAllStudents()
-
-        StepVerifier.create(result)
-            .expectNext(students[0])
-            .expectNext(students[1])
+        StepVerifier.create(studentUseCase.getAllStudents())
+            .expectNext(student1)
+            .expectNext(student2)
             .verifyComplete()
+
+        verify(studentService, times(1)).getAllStudents()
     }
 
     @Test
@@ -40,11 +43,11 @@ class StudentUseCaseTest {
         val student = Student(1, "John Doe")
         `when`(studentService.getStudentById(1)).thenReturn(Mono.just(student))
 
-        val result = studentUseCase.getStudentById(1)
-
-        StepVerifier.create(result)
+        StepVerifier.create(studentUseCase.getStudentById(1L))
             .expectNext(student)
             .verifyComplete()
+
+        verify(studentService, times(1)).getStudentById(1L)
     }
 
     @Test
@@ -52,11 +55,11 @@ class StudentUseCaseTest {
         val student = Student(1, "John Doe")
         `when`(studentService.createStudent(student)).thenReturn(Mono.just(student))
 
-        val result = studentUseCase.createStudent(student)
-
-        StepVerifier.create(result)
+        StepVerifier.create(studentUseCase.createStudent(student))
             .expectNext(student)
             .verifyComplete()
+
+        verify(studentService, times(1)).createStudent(student)
     }
 
     @Test
@@ -64,11 +67,11 @@ class StudentUseCaseTest {
         val student = Student(1, "John Doe")
         `when`(studentService.updateStudent(1, student)).thenReturn(Mono.just(student))
 
-        val result = studentUseCase.updateStudent(1, student)
-
-        StepVerifier.create(result)
+        StepVerifier.create(studentUseCase.updateStudent(1L, student))
             .expectNext(student)
             .verifyComplete()
+
+        verify(studentService, times(1)).updateStudent(1L, student)
     }
 
     @Test
@@ -77,66 +80,10 @@ class StudentUseCaseTest {
         `when`(studentService.getStudentById(1)).thenReturn(Mono.just(student))
         `when`(studentService.deleteStudent(student)).thenReturn(Mono.empty())
 
-        val result = studentUseCase.deleteStudent(1)
-
-        StepVerifier.create(result)
+        StepVerifier.create(studentUseCase.deleteStudent(1L))
             .verifyComplete()
-    }
 
-    @Test
-    fun `getAllStudents should handle errors`() {
-        `when`(studentService.getAllStudents()).thenReturn(Flux.error(RuntimeException("Error")))
-
-        val result = studentUseCase.getAllStudents()
-
-        StepVerifier.create(result)
-            .expectErrorMatches { it is StudentException && it.message!!.contains("query all students") }
-            .verify()
-    }
-
-    @Test
-    fun `getStudentById should handle errors`() {
-        `when`(studentService.getStudentById(1)).thenReturn(Mono.error(RuntimeException("Error")))
-
-        val result = studentUseCase.getStudentById(1)
-
-        StepVerifier.create(result)
-            .expectErrorMatches { it is StudentException && it.message!!.contains("query the student by id") }
-            .verify()
-    }
-
-    @Test
-    fun `createStudent should handle errors`() {
-        val student = Student(1, "John Doe")
-        `when`(studentService.createStudent(student)).thenReturn(Mono.error(RuntimeException("Error")))
-
-        val result = studentUseCase.createStudent(student)
-
-        StepVerifier.create(result)
-            .expectErrorMatches { it is StudentException && it.message!!.contains("save the student") }
-            .verify()
-    }
-
-    @Test
-    fun `updateStudent should handle errors`() {
-        val student = Student(1, "John Doe")
-        `when`(studentService.updateStudent(1, student)).thenReturn(Mono.error(RuntimeException("Error")))
-
-        val result = studentUseCase.updateStudent(1, student)
-
-        StepVerifier.create(result)
-            .expectErrorMatches { it is StudentException && it.message!!.contains("update the student") }
-            .verify()
-    }
-
-    @Test
-    fun `deleteStudent should handle errors`() {
-        `when`(studentService.getStudentById(1)).thenReturn(Mono.error(RuntimeException("Error")))
-
-        val result = studentUseCase.deleteStudent(1)
-
-        StepVerifier.create(result)
-            .expectErrorMatches { it is StudentException && it.message!!.contains("delete the student") }
-            .verify()
+        verify(studentService, times(1)).getStudentById(1L)
+        verify(studentService, times(1)).deleteStudent(student)
     }
 }

@@ -1,9 +1,7 @@
 package com.academy.adapters.controller.handler
 
 import com.academy.adapters.controller.response.ErrorResponse
-import com.academy.domain.exception.DataBaseException
-import com.academy.domain.exception.StudentException
-import com.academy.domain.exception.StudentNotFoundException
+import com.academy.domain.exception.*
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
@@ -27,7 +25,10 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(WebExchangeBindException::class)
-    fun handleValidationException(ex: WebExchangeBindException, exchange: ServerWebExchange): Mono<ResponseEntity<ErrorResponse>> {
+    fun handleValidationException(
+        ex: WebExchangeBindException,
+        exchange: ServerWebExchange
+    ): Mono<ResponseEntity<ErrorResponse>> {
         val errors = ex.bindingResult.fieldErrors.associate { it.field to it.defaultMessage.orEmpty() }
         return buildErrorResponse(
             errorCode = "400",
@@ -41,14 +42,27 @@ class GlobalExceptionHandler {
     fun handleStudentNotFoundException(ex: StudentNotFoundException): Mono<ResponseEntity<ErrorResponse>> {
         return buildErrorResponse(
             errorCode = "404",
-            errorMessage = "Student not fould.",
+            errorMessage = "Student not found.",
+            errorDetails = mapOf("Message" to ex.message.orEmpty()),
+            status = HttpStatus.NOT_FOUND
+        )
+    }
+
+    @ExceptionHandler(CommentException::class)
+    fun handleCommentException(ex: CommentException): Mono<ResponseEntity<ErrorResponse>> {
+        return buildErrorResponse(
+            errorCode = "404",
+            errorMessage = "Comments not found.",
             errorDetails = mapOf("Message" to ex.message.orEmpty()),
             status = HttpStatus.NOT_FOUND
         )
     }
 
     @ExceptionHandler(DataBaseException::class)
-    fun handleDataBaseException(ex: DataBaseException, exchange: ServerWebExchange): Mono<ResponseEntity<ErrorResponse>> {
+    fun handleDataBaseException(
+        ex: DataBaseException,
+        exchange: ServerWebExchange
+    ): Mono<ResponseEntity<ErrorResponse>> {
         return buildErrorResponse(
             errorCode = "500",
             errorMessage = "Unexpected error accessing the database.",
@@ -62,6 +76,19 @@ class GlobalExceptionHandler {
         return buildErrorResponse(
             errorCode = "500",
             errorMessage = "An error occurred in the student's operation.",
+            errorDetails = mapOf("Message" to ex.message.orEmpty()),
+            status = HttpStatus.INTERNAL_SERVER_ERROR
+        )
+    }
+
+    @ExceptionHandler(WebClientReactiveException::class)
+    fun handleWebClientReactiveException(
+        ex: WebClientReactiveException,
+        exchange: ServerWebExchange
+    ): Mono<ResponseEntity<ErrorResponse>> {
+        return buildErrorResponse(
+            errorCode = "500",
+            errorMessage = "An unexpected error occurred in the external API call.",
             errorDetails = mapOf("Message" to ex.message.orEmpty()),
             status = HttpStatus.INTERNAL_SERVER_ERROR
         )

@@ -3,12 +3,12 @@ package com.academy.adapters.service
 import com.academy.adapters.repository.StudentRepository
 import com.academy.adapters.service.mapper.StudentEntityMapper.toEntity
 import com.academy.domain.Student
+import com.academy.domain.exception.DataBaseException
 import com.academy.domain.exception.StudentNotFoundException
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito.*
+import org.springframework.boot.test.context.SpringBootTest
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
@@ -21,104 +21,106 @@ class StudentServiceImplTest {
 
     @BeforeEach
     fun setUp() {
-        studentRepository = mockk()
+        studentRepository = mock(StudentRepository::class.java)
         studentService = StudentServiceImpl(studentRepository)
     }
 
     @Test
     fun `getAllStudents should return all students`() {
-        val student = createStudent()
+        val student = Student(1L, "John", "Doe", 20, "john.doe@example.com", LocalDate.parse("2023-01-01"))
+        `when`(studentRepository.findAll()).thenReturn(Flux.just(student.toEntity()))
 
-        every { studentRepository.findAll() } returns Flux.just(student.toEntity())
-
-        val result = studentService.getAllStudents()
-
-        StepVerifier.create(result)
-            .expectNextMatches { it.firstName == "John" && it.lastName == "Doe" }
+        StepVerifier.create(studentService.getAllStudents())
+            .expectNext(student)
             .verifyComplete()
-
-        verify { studentRepository.findAll() }
     }
 
     @Test
-    fun `getStudentById should return student when found`() {
-        val student = createStudent()
+    fun `getAllStudents should handle errors`() {
+        `when`(studentRepository.findAll()).thenReturn(Flux.error(RuntimeException("DB error")))
 
-        every { studentRepository.findById(1) } returns Mono.just(student.toEntity())
-
-        val result = studentService.getStudentById(1)
-
-        StepVerifier.create(result)
-            .expectNextMatches { it.firstName == "John" && it.lastName == "Doe" }
-            .verifyComplete()
-
-        verify { studentRepository.findById(1) }
-    }
-
-    @Test
-    fun `getStudentById should return error when not found`() {
-
-        every { studentRepository.findById(1) } returns Mono.empty()
-
-        val result = studentService.getStudentById(1)
-
-        StepVerifier.create(result)
-            .expectError(StudentNotFoundException::class.java)
+        StepVerifier.create(studentService.getAllStudents())
+            .expectErrorMatches { it is DataBaseException && it.message == "getAllStudents error: DB error" }
             .verify()
-
-        verify { studentRepository.findById(1) }
     }
 
     @Test
-    fun `createStudent should save and return student`() {
-        val student = createStudent()
-        every { studentRepository.save(any()) } returns Mono.just(student.toEntity())
+    fun `getStudentById should return student by id`() {
+        val student = Student(1L, "John", "Doe", 20, "john.doe@example.com", LocalDate.parse("2023-01-01"))
+        `when`(studentRepository.findById(1L)).thenReturn(Mono.just(student.toEntity()))
 
-        val result = studentService.createStudent(student)
-
-        StepVerifier.create(result)
-            .expectNextMatches { it.firstName == "John" && it.lastName == "Doe" }
+        StepVerifier.create(studentService.getStudentById(1L))
+            .expectNext(student)
             .verifyComplete()
-
-        verify { studentRepository.save(any()) }
     }
 
     @Test
-    fun `updateStudent should update and return student`() {
-        val student = createStudent()
+    fun `getStudentById should handle student not found`() {
+        `when`(studentRepository.findById(1L)).thenReturn(Mono.empty())
+
+        StepVerifier.create(studentService.getStudentById(1L))
+            .expectErrorMatches { it is StudentNotFoundException && it.message == "Student not found with id 1" }
+            .verify()
+    }
+
+    @Test
+    fun `createStudent should create a new student`() {
+        val student = Student(1L, "John", "Doe", 20, "john.doe@example.com", LocalDate.parse("2023-01-01"))
+        `when`(studentRepository.save(student.toEntity())).thenReturn(Mono.just(student.toEntity()))
+
+        StepVerifier.create(studentService.createStudent(student))
+            .expectNext(student)
+            .verifyComplete()
+    }
+
+    @Test
+    fun `createStudent should handle errors`() {
+        val student = Student(1L, "John", "Doe", 20, "john.doe@example.com", LocalDate.parse("2023-01-01"))
+        `when`(studentRepository.save(student.toEntity())).thenReturn(Mono.error(RuntimeException("DB error")))
+
+        StepVerifier.create(studentService.createStudent(student))
+            .expectErrorMatches { it is DataBaseException && it.message == "createStudent error: DB error" }
+            .verify()
+    }
+
+    @Test
+    fun `updateStudent should update an existing student`() {
+        val student = Student(1L, "John", "Doe", 20, "john.doe@example.com", LocalDate.parse("2023-01-01"))
         val updatedStudent = student.copy(firstName = "Jane")
-        every { studentRepository.findById(1) } returns Mono.just(student.toEntity())
-        every { studentRepository.save(any()) } returns Mono.just(updatedStudent.toEntity())
+        `when`(studentRepository.findById(1L)).thenReturn(Mono.just(student.toEntity()))
+        `when`(studentRepository.save(any())).thenReturn(Mono.just(updatedStudent.toEntity()))
 
-        val result = studentService.updateStudent(1, updatedStudent)
-
-        StepVerifier.create(result)
-            .expectNextMatches { it.firstName == "Jane" && it.lastName == "Doe" }
+        StepVerifier.create(studentService.updateStudent(1L, updatedStudent))
+            .expectNext(updatedStudent)
             .verifyComplete()
-
-        verify { studentRepository.findById(1) }
-        verify { studentRepository.save(any()) }
     }
 
     @Test
-    fun `deleteStudent should delete student`() {
-        val student = createStudent()
-        every { studentRepository.delete(any()) } returns Mono.empty()
+    fun `updateStudent should handle student not found`() {
+        val student = Student(1L, "John", "Doe", 20, "john.doe@example.com", LocalDate.parse("2023-01-01"))
+        `when`(studentRepository.findById(1L)).thenReturn(Mono.empty())
 
-        val result = studentService.deleteStudent(student)
-
-        StepVerifier.create(result)
-            .verifyComplete()
-
-        verify { studentRepository.delete(any()) }
+        StepVerifier.create(studentService.updateStudent(1L, student))
+            .expectErrorMatches { it is StudentNotFoundException && it.message == "Student not found with id 1" }
+            .verify()
     }
 
-    private fun createStudent() = Student(
-        id = 1,
-        firstName = "John",
-        lastName = "Doe",
-        age = 20,
-        email = "john.doe@example.com",
-        enrollmentDate = LocalDate.parse("2021-09-01")
-    )
+    @Test
+    fun `deleteStudent should delete a student`() {
+        val student = Student(1L, "John", "Doe", 20, "john.doe@example.com", LocalDate.parse("2023-01-01"))
+        `when`(studentRepository.delete(student.toEntity())).thenReturn(Mono.empty())
+
+        StepVerifier.create(studentService.deleteStudent(student))
+            .verifyComplete()
+    }
+
+    @Test
+    fun `deleteStudent should handle errors`() {
+        val student = Student(1L, "John", "Doe", 20, "john.doe@example.com", LocalDate.parse("2023-01-01"))
+        `when`(studentRepository.delete(student.toEntity())).thenReturn(Mono.error(RuntimeException("DB error")))
+
+        StepVerifier.create(studentService.deleteStudent(student))
+            .expectErrorMatches { it is DataBaseException && it.message == "deleteStudent error: DB error" }
+            .verify()
+    }
 }
