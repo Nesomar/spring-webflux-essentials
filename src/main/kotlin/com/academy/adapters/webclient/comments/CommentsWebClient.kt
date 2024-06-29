@@ -1,7 +1,7 @@
 package com.academy.adapters.webclient.comments
 
-import com.academy.adapters.webclient.comments.mapper.CommentRequestMapper.toDomain
-import com.academy.adapters.webclient.comments.request.CommentRequest
+import com.academy.adapters.webclient.comments.mapper.CommentResponseMapper.toDomain
+import com.academy.adapters.webclient.comments.response.CommentResponse
 import com.academy.domain.Comment
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
@@ -16,7 +16,7 @@ class CommentsWebClient(
         return webClient.get()
             .uri("/comments?_page=$page&_limit=$size")
             .retrieve()
-            .bodyToFlux(CommentRequest::class.java)
+            .bodyToFlux(CommentResponse::class.java)
             .map { it.toDomain() }
     }
 
@@ -24,7 +24,7 @@ class CommentsWebClient(
         return webClient.get()
             .uri("/comments?postId={postId}&_page=$page&_limit=$size", postId)
             .retrieve()
-            .bodyToFlux(CommentRequest::class.java)
+            .bodyToFlux(CommentResponse::class.java)
             .map { it.toDomain() }
     }
 }

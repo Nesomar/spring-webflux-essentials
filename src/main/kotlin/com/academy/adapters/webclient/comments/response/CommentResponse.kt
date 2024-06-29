@@ -1,6 +1,6 @@
-package com.academy.adapters.webclient.comments.request
+package com.academy.adapters.webclient.comments.response
 
-data class CommentRequest(
+data class CommentResponse(
     val postId: Int,
     val id: Int,
     val name: String,

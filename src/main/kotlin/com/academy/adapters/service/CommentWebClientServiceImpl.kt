@@ -3,6 +3,7 @@ package com.academy.adapters.service
 import com.academy.adapters.webclient.comments.CommentsWebClient
 import com.academy.application.ports.CommentWebClientService
 import com.academy.domain.Comment
+import com.academy.domain.exception.CommentsNotFoundException
 import com.academy.domain.exception.WebClientReactiveException
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
@@ -13,7 +14,10 @@ class CommentWebClientServiceImpl(
 ) : CommentWebClientService {
 
     override fun getCommentsByPostId(postId: Int, page: Int, size: Int): Flux<Comment> {
-        return fetchComments { commentsWebClient.getCommentsByPostId(postId, page, size) }
+        return fetchComments {
+            commentsWebClient.getCommentsByPostId(postId, page, size)
+        }
+            .switchIfEmpty { throw CommentsNotFoundException("Comment not found with postId $postId") }
     }
 
     override fun getAllComments(page: Int, size: Int): Flux<Comment> {

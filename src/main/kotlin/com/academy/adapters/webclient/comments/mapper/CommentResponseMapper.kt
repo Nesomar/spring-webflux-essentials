@@ -1,11 +1,11 @@
 package com.academy.adapters.webclient.comments.mapper
 
-import com.academy.adapters.webclient.comments.request.CommentRequest
+import com.academy.adapters.webclient.comments.response.CommentResponse
 import com.academy.domain.Comment
 
-object CommentRequestMapper {
+object CommentResponseMapper {
 
-    fun CommentRequest.toDomain() : Comment =
+    fun CommentResponse.toDomain() : Comment =
         Comment(
             id = this.id,
             body = this.body,

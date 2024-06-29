@@ -23,7 +23,7 @@ class CommentsUseCase(
         }
     }
 
-    @CacheEvict(value = ["comment"], key = "#postId", allEntries = true)
+    @CacheEvict(value = ["comment"], allEntries = true)
     fun deleteAllComments(): Mono<Void> {
         return commentService.deleteAllComments()
     }
