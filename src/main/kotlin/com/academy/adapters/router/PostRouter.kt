@@ -10,15 +10,17 @@ import org.springframework.web.reactive.function.server.ServerResponse
 @Configuration
 class PostRouter(private val postHandler: PostHandler) {
 
-    private val uri = "posts"
-
     @Bean
     fun route(): RouterFunction<ServerResponse> = RouterFunctions
         .route()
-        .GET("/$uri", postHandler::getAllPosts)
-        .GET("/$uri/{id}", postHandler::getPostById)
-        .POST("/$uri", postHandler::createPost)
-        .PUT("/$uri/{id}", postHandler::updatePost)
-        .DELETE("/$uri/{id}", postHandler::deletePost)
+        .GET("/$URI", postHandler::getAllPosts)
+        .GET("/$URI/{postId}", postHandler::getPostById)
+        .POST("/$URI", postHandler::createPost)
+        .PUT("/$URI/{postId}", postHandler::updatePost)
+        .DELETE("/$URI/{postId}", postHandler::deletePost)
         .build()
+
+    companion object {
+        private const val URI = "posts"
+    }
 }
